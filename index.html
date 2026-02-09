@@ -80,10 +80,10 @@ button:active {
   font-style: italic;
 }
 
-/* Aqui redimensionamos os ícones grandes (1024x1024) para exibir pequenos */
+/* Redimensionamento dos ícones grandes para exibição no jogo */
 img.attr-icon {
-  width: 32px;   /* tamanho exibido no jogo */
-  height: 32px;  /* tamanho exibido no jogo */
+  width: 32px;
+  height: 32px;
   object-fit: contain;
   vertical-align: middle;
 }
@@ -97,11 +97,12 @@ img.attr-icon {
 
 <div id="stats"></div>
 
-<button onclick="acao('alimentar')"><img class="attr-icon" src="vitalidade.png" alt="Vitalidade"> Alimentar</button>
-<button onclick="acao('cuidar')"><img class="attr-icon" src="confianca.png" alt="Confiança"> Cuidar do espaço</button>
-<button onclick="acao('movimento')"><img class="attr-icon" src="forca.png" alt="Força"> Movimento leve</button>
-<button onclick="acao('contato')"><img class="attr-icon" src="disciplina.png" alt="Disciplina"> Contato calmo</button>
-<button onclick="acao('observar')"><img class="attr-icon" src="instinto.png" alt="Instinto"> Observação silenciosa</button>
+<!-- Botões com ícones personalizados -->
+<button onclick="acao('alimentar')"><img class="attr-icon" src="botao-alimentar.png" alt="Alimentar"> Alimentar</button>
+<button onclick="acao('cuidar')"><img class="attr-icon" src="botao-cuidar.png" alt="Cuidar"> Cuidar do espaço</button>
+<button onclick="acao('movimento')"><img class="attr-icon" src="botao-movimento.png" alt="Movimento"> Movimento leve</button>
+<button onclick="acao('contato')"><img class="attr-icon" src="botao-contato.png" alt="Contato"> Contato calmo</button>
+<button onclick="acao('observar')"><img class="attr-icon" src="botao-observar.png" alt="Observar"> Observação silenciosa</button>
 
 <div id="log"></div>
 
