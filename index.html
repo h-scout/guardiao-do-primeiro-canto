@@ -5,11 +5,13 @@
 <title>O Guardião do Primeiro Canto</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#d4af37">
+<link rel="manifest" href="manifest.json">
 
 <style>
 body {
-  background: linear-gradient(135deg, #d4af37, #f5e27a);
-  color: #2b1b00;
+  background: linear-gradient(180deg, #d4af37, #b8962e);
+  color: #1a1a1a;
   font-family: Arial, sans-serif;
   padding: 20px;
 }
@@ -33,42 +35,42 @@ h1 {
   background: rgba(0,0,0,0.2);
   height: 20px;
   width: 100%;
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
 }
 
 .fill {
   height: 100%;
-  width: 0%;
+  transition: width 0.3s;
 }
 
-.vitalidade { background: #4caf50; }
-.forca { background: #c62828; }
-.disciplina { background: #1565c0; }
-.confianca { background: #6a1b9a; }
-.instinto { background: #ef6c00; }
+.vitalidade { background: #e53935; }
+.forca { background: #6d4c41; }
+.disciplina { background: #1e88e5; }
+.confianca { background: #43a047; }
+.instinto { background: #fdd835; }
 
 button {
   width: 100%;
   padding: 14px;
   margin: 6px 0;
-  background: #2b1b00;
-  color: #f5e27a;
+  background: #1a1a1a;
+  color: #fff;
   border: none;
-  border-radius: 8px;
   font-size: 16px;
+  border-radius: 8px;
 }
 
 button:active {
-  transform: scale(0.98);
+  background: #000;
 }
 
 #log {
   margin-top: 20px;
-  min-height: 80px;
+  min-height: 70px;
   padding-top: 10px;
+  border-top: 2px solid rgba(0,0,0,0.3);
   font-style: italic;
-  text-align: center;
 }
 </style>
 </head>
@@ -80,7 +82,7 @@ button:active {
 
 <div id="stats"></div>
 
-<button onclick="acao('alimentar')">🥣 Alimentar</button>
+<button onclick="acao('alimentar')">🍚 Alimentar</button>
 <button onclick="acao('cuidar')">🧹 Cuidar do espaço</button>
 <button onclick="acao('movimento')">🏃 Movimento leve</button>
 <button onclick="acao('contato')">🤲 Contato calmo</button>
@@ -97,29 +99,13 @@ let galo = JSON.parse(localStorage.getItem("galo")) || {
   instinto: 5
 };
 
-const nomes = {
-  vitalidade: "💚 Vitalidade",
-  forca: "💪 Força",
-  disciplina: "🛡️ Disciplina",
-  confianca: "🤍 Confiança",
-  instinto: "🔥 Instinto"
-};
-
-const cores = {
-  vitalidade: "vitalidade",
-  forca: "forca",
-  disciplina: "disciplina",
-  confianca: "confianca",
-  instinto: "instinto"
-};
-
 const fases = [
-  "🐣 Pintinho do Calor",
-  "🌱 Aprendiz do Território",
-  "👀 Vigilante Jovem",
-  "⚔️ Galo em Formação",
-  "📯 O Primeiro Canto",
-  "👑 Galo Lendário"
+  "Pintinho do Calor",
+  "Aprendiz do Território",
+  "Vigilante Jovem",
+  "Galo em Formação",
+  "O Primeiro Canto",
+  "Galo Lendário"
 ];
 
 function faseAtual() {
@@ -153,27 +139,27 @@ function acao(tipo) {
   if (tipo === 'alimentar') {
     galo.vitalidade += 5;
     galo.forca += 2;
-    escrever("O alimento fortalece o corpo.");
+    escrever("🍚 O alimento fortalece o corpo.");
   }
   if (tipo === 'cuidar') {
     galo.vitalidade += 3;
     galo.confianca += 2;
-    escrever("O ambiente molda o espírito.");
+    escrever("🧹 O ambiente molda o espírito.");
   }
   if (tipo === 'movimento') {
     galo.forca += 4;
     galo.instinto += 2;
-    escrever("O corpo aprende pelo movimento.");
+    escrever("🏃 O corpo aprende pelo movimento.");
   }
   if (tipo === 'contato') {
     galo.disciplina += 4;
     galo.confianca += 3;
-    escrever("A calma cria confiança.");
+    escrever("🤲 A calma cria confiança.");
   }
   if (tipo === 'observar') {
     galo.disciplina += 3;
     galo.instinto += 3;
-    escrever("O guardião que observa, antecipa.");
+    escrever("👁️ O guardião que observa, antecipa.");
   }
 
   limitar();
@@ -185,16 +171,28 @@ function atualizar() {
   document.getElementById("fase").innerText =
     "Fase atual: " + faseAtual();
 
-  let html = "";
-  for (let k in galo) {
-    html += `
-    <div class="status">
-      ${nomes[k]} — ${galo[k]}
-      <div class="bar">
-        <div class="fill ${cores[k]}" style="width:${galo[k]}%"></div>
-      </div>
-    </div>`;
-  }
+  let html = `
+  <div class="status">❤️ Vitalidade: ${galo.vitalidade}
+    <div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>
+  </div>
+
+  <div class="status">💪 Força: ${galo.forca}
+    <div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>
+  </div>
+
+  <div class="status">📏 Disciplina: ${galo.disciplina}
+    <div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>
+  </div>
+
+  <div class="status">🛡️ Confiança: ${galo.confianca}
+    <div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>
+  </div>
+
+  <div class="status">🔥 Instinto: ${galo.instinto}
+    <div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>
+  </div>
+  `;
+
   document.getElementById("stats").innerHTML = html;
 }
 
@@ -203,6 +201,14 @@ function escrever(txt) {
 }
 
 atualizar();
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", function () {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
 </script>
 
 </body>
