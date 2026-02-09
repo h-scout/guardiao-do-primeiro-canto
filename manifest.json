@@ -1,0 +1,22 @@
+{
+  "name": "O Guardião do Primeiro Canto",
+  "short_name": "Guardião do Canto",
+  "description": "Um jogo ritual de cuidado, treino e evolução de um galo lendário.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#d4af37",
+  "theme_color": "#d4af37",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
