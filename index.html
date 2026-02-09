@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>O Guardião do Primeiro Canto</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body {
+  background: linear-gradient(135deg, #d4af37, #f5e27a);
+  color: #2b1b00;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#fase {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.status {
+  margin: 12px 0;
+}
+
+.bar {
+  background: rgba(0,0,0,0.2);
+  height: 20px;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 0%;
+}
+
+.vitalidade { background: #4caf50; }
+.forca { background: #c62828; }
+.disciplina { background: #1565c0; }
+.confianca { background: #6a1b9a; }
+.instinto { background: #ef6c00; }
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin: 6px 0;
+  background: #2b1b00;
+  color: #f5e27a;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#log {
+  margin-top: 20px;
+  min-height: 80px;
+  padding-top: 10px;
+  font-style: italic;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐓 O Guardião do Primeiro Canto</h1>
+<p id="fase"></p>
+
+<div id="stats"></div>
+
+<button onclick="acao('alimentar')">🥣 Alimentar</button>
+<button onclick="acao('cuidar')">🧹 Cuidar do espaço</button>
+<button onclick="acao('movimento')">🏃 Movimento leve</button>
+<button onclick="acao('contato')">🤲 Contato calmo</button>
+<button onclick="acao('observar')">👁️ Observação silenciosa</button>
+
+<div id="log"></div>
+
+<script>
+let galo = JSON.parse(localStorage.getItem("galo")) || {
+  vitalidade: 20,
+  forca: 10,
+  disciplina: 10,
+  confianca: 10,
+  instinto: 5
+};
+
+const nomes = {
+  vitalidade: "💚 Vitalidade",
+  forca: "💪 Força",
+  disciplina: "🛡️ Disciplina",
+  confianca: "🤍 Confiança",
+  instinto: "🔥 Instinto"
+};
+
+const cores = {
+  vitalidade: "vitalidade",
+  forca: "forca",
+  disciplina: "disciplina",
+  confianca: "confianca",
+  instinto: "instinto"
+};
+
+const fases = [
+  "🐣 Pintinho do Calor",
+  "🌱 Aprendiz do Território",
+  "👀 Vigilante Jovem",
+  "⚔️ Galo em Formação",
+  "📯 O Primeiro Canto",
+  "👑 Galo Lendário"
+];
+
+function faseAtual() {
+  let media = (
+    galo.vitalidade +
+    galo.forca +
+    galo.disciplina +
+    galo.confianca +
+    galo.instinto
+  ) / 5;
+
+  if (media < 25) return fases[0];
+  if (media < 40) return fases[1];
+  if (media < 60) return fases[2];
+  if (media < 80) return fases[3];
+  if (media < 95) return fases[4];
+  return fases[5];
+}
+
+function limitar() {
+  for (let k in galo) {
+    if (galo[k] > 100) galo[k] = 100;
+  }
+}
+
+function salvar() {
+  localStorage.setItem("galo", JSON.stringify(galo));
+}
+
+function acao(tipo) {
+  if (tipo === 'alimentar') {
+    galo.vitalidade += 5;
+    galo.forca += 2;
+    escrever("O alimento fortalece o corpo.");
+  }
+  if (tipo === 'cuidar') {
+    galo.vitalidade += 3;
+    galo.confianca += 2;
+    escrever("O ambiente molda o espírito.");
+  }
+  if (tipo === 'movimento') {
+    galo.forca += 4;
+    galo.instinto += 2;
+    escrever("O corpo aprende pelo movimento.");
+  }
+  if (tipo === 'contato') {
+    galo.disciplina += 4;
+    galo.confianca += 3;
+    escrever("A calma cria confiança.");
+  }
+  if (tipo === 'observar') {
+    galo.disciplina += 3;
+    galo.instinto += 3;
+    escrever("O guardião que observa, antecipa.");
+  }
+
+  limitar();
+  salvar();
+  atualizar();
+}
+
+function atualizar() {
+  document.getElementById("fase").innerText =
+    "Fase atual: " + faseAtual();
+
+  let html = "";
+  for (let k in galo) {
+    html += `
+    <div class="status">
+      ${nomes[k]} — ${galo[k]}
+      <div class="bar">
+        <div class="fill ${cores[k]}" style="width:${galo[k]}%"></div>
+      </div>
+    </div>`;
+  }
+  document.getElementById("stats").innerHTML = html;
+}
+
+function escrever(txt) {
+  document.getElementById("log").innerText = txt;
+}
+
+atualizar();
+</script>
+
+</body>
+</html>
