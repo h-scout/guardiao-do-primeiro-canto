@@ -29,6 +29,9 @@ h1 {
 
 .status {
   margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .bar {
@@ -37,6 +40,7 @@ h1 {
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
+  flex-grow: 1;
 }
 
 .fill {
@@ -59,6 +63,9 @@ button {
   border: none;
   font-size: 16px;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 button:active {
@@ -72,21 +79,29 @@ button:active {
   border-top: 2px solid rgba(0,0,0,0.3);
   font-style: italic;
 }
+
+/* Aqui redimensionamos os ícones grandes (1024x1024) para exibir pequenos */
+img.attr-icon {
+  width: 32px;   /* tamanho exibido no jogo */
+  height: 32px;  /* tamanho exibido no jogo */
+  object-fit: contain;
+  vertical-align: middle;
+}
 </style>
 </head>
 
 <body>
 
-<h1>🐓 O Guardião do Primeiro Canto</h1>
+<h1>O Guardião do Primeiro Canto</h1>
 <p id="fase"></p>
 
 <div id="stats"></div>
 
-<button onclick="acao('alimentar')">🍚 Alimentar</button>
-<button onclick="acao('cuidar')">🧹 Cuidar do espaço</button>
-<button onclick="acao('movimento')">🏃 Movimento leve</button>
-<button onclick="acao('contato')">🤲 Contato calmo</button>
-<button onclick="acao('observar')">👁️ Observação silenciosa</button>
+<button onclick="acao('alimentar')"><img class="attr-icon" src="vitalidade.png" alt="Vitalidade"> Alimentar</button>
+<button onclick="acao('cuidar')"><img class="attr-icon" src="confianca.png" alt="Confiança"> Cuidar do espaço</button>
+<button onclick="acao('movimento')"><img class="attr-icon" src="forca.png" alt="Força"> Movimento leve</button>
+<button onclick="acao('contato')"><img class="attr-icon" src="disciplina.png" alt="Disciplina"> Contato calmo</button>
+<button onclick="acao('observar')"><img class="attr-icon" src="instinto.png" alt="Instinto"> Observação silenciosa</button>
 
 <div id="log"></div>
 
@@ -139,27 +154,27 @@ function acao(tipo) {
   if (tipo === 'alimentar') {
     galo.vitalidade += 5;
     galo.forca += 2;
-    escrever("🍚 O alimento fortalece o corpo.");
+    escrever("O alimento fortalece o corpo.");
   }
   if (tipo === 'cuidar') {
     galo.vitalidade += 3;
     galo.confianca += 2;
-    escrever("🧹 O ambiente molda o espírito.");
+    escrever("O ambiente molda o espírito.");
   }
   if (tipo === 'movimento') {
     galo.forca += 4;
     galo.instinto += 2;
-    escrever("🏃 O corpo aprende pelo movimento.");
+    escrever("O corpo aprende pelo movimento.");
   }
   if (tipo === 'contato') {
     galo.disciplina += 4;
     galo.confianca += 3;
-    escrever("🤲 A calma cria confiança.");
+    escrever("A calma cria confiança.");
   }
   if (tipo === 'observar') {
     galo.disciplina += 3;
     galo.instinto += 3;
-    escrever("👁️ O guardião que observa, antecipa.");
+    escrever("O guardião que observa, antecipa.");
   }
 
   limitar();
@@ -172,23 +187,23 @@ function atualizar() {
     "Fase atual: " + faseAtual();
 
   let html = `
-  <div class="status">❤️ Vitalidade: ${galo.vitalidade}
+  <div class="status"><img class="attr-icon" src="vitalidade.png" alt="Vitalidade"> Vitalidade: ${galo.vitalidade}
     <div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>
   </div>
 
-  <div class="status">💪 Força: ${galo.forca}
+  <div class="status"><img class="attr-icon" src="forca.png" alt="Força"> Força: ${galo.forca}
     <div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>
   </div>
 
-  <div class="status">📏 Disciplina: ${galo.disciplina}
+  <div class="status"><img class="attr-icon" src="disciplina.png" alt="Disciplina"> Disciplina: ${galo.disciplina}
     <div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>
   </div>
 
-  <div class="status">🛡️ Confiança: ${galo.confianca}
+  <div class="status"><img class="attr-icon" src="confianca.png" alt="Confiança"> Confiança: ${galo.confianca}
     <div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>
   </div>
 
-  <div class="status">🔥 Instinto: ${galo.instinto}
+  <div class="status"><img class="attr-icon" src="instinto.png" alt="Instinto"> Instinto: ${galo.instinto}
     <div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>
   </div>
   `;
