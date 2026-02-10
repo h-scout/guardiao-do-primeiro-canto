@@ -7,8 +7,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#d4af37">
 <link rel="manifest" href="manifest.json">
-
-<!-- Ícone da aba do navegador -->
 <link rel="icon" href="icone-galo.png">
 
 <style>
@@ -19,25 +17,30 @@ body {
   padding: 20px;
 }
 
-/* Título com ícone */
 .titulo {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
 .icon-title {
   width: 40px;
   height: 40px;
-  object-fit: contain;
 }
 
-#fase {
-  text-align: center;
-  font-weight: bold;
+.fase-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.fase-icon {
+  width: 36px;
+  height: 36px;
 }
 
 .status {
@@ -56,11 +59,7 @@ body {
   flex-grow: 1;
 }
 
-.fill {
-  height: 100%;
-  transition: width 0.3s;
-}
-
+.fill { height: 100%; transition: width 0.3s; }
 .vitalidade { background: #e53935; }
 .forca { background: #6d4c41; }
 .disciplina { background: #1e88e5; }
@@ -81,22 +80,9 @@ button {
   gap: 8px;
 }
 
-button:active {
-  background: #000;
-}
-
-#log {
-  margin-top: 20px;
-  min-height: 70px;
-  padding-top: 10px;
-  border-top: 2px solid rgba(0,0,0,0.3);
-  font-style: italic;
-}
-
 img.attr-icon {
   width: 32px;
   height: 32px;
-  object-fit: contain;
 }
 </style>
 </head>
@@ -104,11 +90,11 @@ img.attr-icon {
 <body>
 
 <h1 class="titulo">
-  <img src="icone-galo.png" alt="Ícone do jogo" class="icon-title">
+  <img src="icone-galo.png" class="icon-title">
   O Guardião do Primeiro Canto
 </h1>
 
-<p id="fase"></p>
+<div id="fase" class="fase-box"></div>
 
 <div id="stats"></div>
 
@@ -122,11 +108,7 @@ img.attr-icon {
 
 <script>
 let galo = JSON.parse(localStorage.getItem("galo")) || {
-  vitalidade: 20,
-  forca: 10,
-  disciplina: 10,
-  confianca: 10,
-  instinto: 5
+  vitalidade: 20, forca: 10, disciplina: 10, confianca: 10, instinto: 5
 };
 
 const fases = [
@@ -138,18 +120,14 @@ const fases = [
   "Galo Lendário"
 ];
 
-function faseAtual() {
-  let media = (galo.vitalidade + galo.forca + galo.disciplina + galo.confianca + galo.instinto) / 5;
-  if (media < 25) return fases[0];
-  if (media < 40) return fases[1];
-  if (media < 60) return fases[2];
-  if (media < 80) return fases[3];
-  if (media < 95) return fases[4];
-  return fases[5];
-}
-
-function limitar() {
-  for (let k in galo) if (galo[k] > 100) galo[k] = 100;
+function faseIndex() {
+  let m = (galo.vitalidade + galo.forca + galo.disciplina + galo.confianca + galo.instinto) / 5;
+  if (m < 25) return 1;
+  if (m < 40) return 2;
+  if (m < 60) return 3;
+  if (m < 80) return 4;
+  if (m < 95) return 5;
+  return 6;
 }
 
 function salvar() {
@@ -157,26 +135,32 @@ function salvar() {
 }
 
 function acao(tipo) {
-  if (tipo === 'alimentar') { galo.vitalidade += 5; galo.forca += 2; escrever("O alimento fortalece o corpo."); }
-  if (tipo === 'cuidar') { galo.vitalidade += 3; galo.confianca += 2; escrever("O ambiente molda o espírito."); }
-  if (tipo === 'movimento') { galo.forca += 4; galo.instinto += 2; escrever("O corpo aprende pelo movimento."); }
-  if (tipo === 'contato') { galo.disciplina += 4; galo.confianca += 3; escrever("A calma cria confiança."); }
-  if (tipo === 'observar') { galo.disciplina += 3; galo.instinto += 3; escrever("O guardião que observa, antecipa."); }
-  limitar(); salvar(); atualizar();
+  if (tipo === 'alimentar') { galo.vitalidade += 5; galo.forca += 2; }
+  if (tipo === 'cuidar') { galo.vitalidade += 3; galo.confianca += 2; }
+  if (tipo === 'movimento') { galo.forca += 4; galo.instinto += 2; }
+  if (tipo === 'contato') { galo.disciplina += 4; galo.confianca += 3; }
+  if (tipo === 'observar') { galo.disciplina += 3; galo.instinto += 3; }
+
+  for (let k in galo) if (galo[k] > 100) galo[k] = 100;
+  salvar();
+  atualizar();
 }
 
 function atualizar() {
-  document.getElementById("fase").innerText = "Fase atual: " + faseAtual();
+  let idx = faseIndex();
+  document.getElementById("fase").innerHTML = `
+    <img src="fase-${idx}.png" class="fase-icon">
+    Fase atual: ${fases[idx - 1]}
+  `;
+
   document.getElementById("stats").innerHTML = `
-  <div class="status"><img class="attr-icon" src="vitalidade.png"> Vitalidade ${galo.vitalidade}<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div></div>
-  <div class="status"><img class="attr-icon" src="forca.png"> Força ${galo.forca}<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div></div>
-  <div class="status"><img class="attr-icon" src="disciplina.png"> Disciplina ${galo.disciplina}<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div></div>
-  <div class="status"><img class="attr-icon" src="confianca.png"> Confiança ${galo.confianca}<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div></div>
-  <div class="status"><img class="attr-icon" src="instinto.png"> Instinto ${galo.instinto}<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div></div>
+    <div class="status"><img class="attr-icon" src="vitalidade.png"> ${galo.vitalidade}<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div></div>
+    <div class="status"><img class="attr-icon" src="forca.png"> ${galo.forca}<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div></div>
+    <div class="status"><img class="attr-icon" src="disciplina.png"> ${galo.disciplina}<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div></div>
+    <div class="status"><img class="attr-icon" src="confianca.png"> ${galo.confianca}<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div></div>
+    <div class="status"><img class="attr-icon" src="instinto.png"> ${galo.instinto}<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div></div>
   `;
 }
-
-function escrever(txt) { document.getElementById("log").innerText = txt; }
 
 atualizar();
 </script>
