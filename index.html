@@ -95,7 +95,6 @@ img.attr-icon {
 </h1>
 
 <div id="fase" class="fase-box"></div>
-
 <div id="stats"></div>
 
 <button onclick="acao('alimentar')"><img class="attr-icon" src="botao-alimentar.png"> Alimentar</button>
@@ -106,16 +105,30 @@ img.attr-icon {
 
 <div id="log"></div>
 
-<!-- Sons -->
-<audio id="s1" src="click-alimentar.m4a"></audio>
-<audio id="s2" src="click-cuidar.m4a"></audio>
-<audio id="s3" src="click-movimento.m4a"></audio>
-<audio id="s4" src="click-contato.m4a"></audio>
-<audio id="s5" src="click-observar.m4a"></audio>
-
 <script>
 let galo = JSON.parse(localStorage.getItem("galo")) || {
   vitalidade: 20, forca: 10, disciplina: 10, confianca: 10, instinto: 5
+};
+
+let faseAnterior = null;
+
+// sons das fases
+const sonsFase = {
+  1: new Audio("fase1.m4a"),
+  2: new Audio("fase2.m4a"),
+  3: new Audio("fase3.m4a"),
+  4: new Audio("fase4.m4a"),
+  5: new Audio("fase5.m4a"),
+  6: new Audio("fase6.m4a")
+};
+
+// sons botões
+const sonsClique = {
+  alimentar: new Audio("click-alimentar.m4a"),
+  cuidar: new Audio("click-cuidar.m4a"),
+  movimento: new Audio("click-movimento.m4a"),
+  contato: new Audio("click-contato.m4a"),
+  observar: new Audio("click-observar.m4a")
 };
 
 const fases = [
@@ -126,12 +139,6 @@ const fases = [
   "O Primeiro Canto",
   "Galo Lendário"
 ];
-
-function tocar(id){
-  let s = document.getElementById(id);
-  s.currentTime = 0;
-  s.play();
-}
 
 function faseIndex() {
   let m = (galo.vitalidade + galo.forca + galo.disciplina + galo.confianca + galo.instinto) / 5;
@@ -147,13 +154,34 @@ function salvar() {
   localStorage.setItem("galo", JSON.stringify(galo));
 }
 
+function tocarSomClique(tipo){
+  let s = sonsClique[tipo];
+  if(s){
+    s.currentTime = 0;
+    s.play();
+  }
+}
+
+function tocarSomFase(nova){
+  if(faseAnterior !== null && faseAnterior !== nova){
+    let s = sonsFase[nova];
+    if(s){
+      s.currentTime = 0;
+      s.play();
+    }
+  }
+  faseAnterior = nova;
+}
+
 function acao(tipo) {
 
-  if (tipo === 'alimentar') { tocar("s1"); galo.vitalidade += 5; galo.forca += 2; }
-  if (tipo === 'cuidar') { tocar("s2"); galo.vitalidade += 3; galo.confianca += 2; }
-  if (tipo === 'movimento') { tocar("s3"); galo.forca += 4; galo.instinto += 2; }
-  if (tipo === 'contato') { tocar("s4"); galo.disciplina += 4; galo.confianca += 3; }
-  if (tipo === 'observar') { tocar("s5"); galo.disciplina += 3; galo.instinto += 3; }
+  tocarSomClique(tipo);
+
+  if (tipo === 'alimentar') { galo.vitalidade += 5; galo.forca += 2; }
+  if (tipo === 'cuidar') { galo.vitalidade += 3; galo.confianca += 2; }
+  if (tipo === 'movimento') { galo.forca += 4; galo.instinto += 2; }
+  if (tipo === 'contato') { galo.disciplina += 4; galo.confianca += 3; }
+  if (tipo === 'observar') { galo.disciplina += 3; galo.instinto += 3; }
 
   for (let k in galo) if (galo[k] > 100) galo[k] = 100;
 
@@ -163,6 +191,8 @@ function acao(tipo) {
 
 function atualizar() {
   let idx = faseIndex();
+
+  tocarSomFase(idx);
 
   document.getElementById("fase").innerHTML = `
     <img src="fase-${idx}.png" class="fase-icon">
