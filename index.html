@@ -13,8 +13,9 @@
 body{
 background:linear-gradient(180deg,#d4af37,#b8962e);
 color:#1a1a1a;
-font-family:Arial;
+font-family:Arial,sans-serif;
 padding:20px;
+text-align:center;
 }
 
 .titulo{
@@ -25,31 +26,12 @@ gap:10px;
 }
 
 .icon-title{
-width:40px;
-}
-
-.perfil{
-text-align:center;
-margin:15px 0;
+width:45px;
 }
 
 .perfil img{
-width:70px;
-height:70px;
-border-radius:50%;
-}
-
-.fase-box{
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-margin-bottom:10px;
-font-weight:bold;
-}
-
-.fase-icon{
-width:36px;
+width:90px;
+margin:15px 0;
 }
 
 .status{
@@ -67,21 +49,18 @@ border-radius:10px;
 overflow:hidden;
 }
 
-.fill{
-height:100%;
-transition:.3s;
-}
+.fill{height:100%;transition:.3s}
 
-.vitalidade{background:#e53935;}
-.forca{background:#6d4c41;}
-.disciplina{background:#1e88e5;}
-.confianca{background:#43a047;}
-.instinto{background:#fdd835;}
+.vitalidade{background:#e53935}
+.forca{background:#6d4c41}
+.disciplina{background:#1e88e5}
+.confianca{background:#43a047}
+.instinto{background:#fdd835}
 
 button{
 width:100%;
 padding:14px;
-margin:6px 0;
+margin:8px 0;
 background:#111;
 color:#fff;
 border:none;
@@ -92,8 +71,8 @@ align-items:center;
 gap:10px;
 }
 
-.attr-icon{
-width:30px;
+img.attr-icon{
+width:34px;
 }
 </style>
 </head>
@@ -105,13 +84,9 @@ width:30px;
 O Guardião do Primeiro Canto
 </h1>
 
-<div class="perfil">
-<img src="icone-galo.png">
-<div id="info"></div>
-<div id="personalidade"></div>
-</div>
+<div class="perfil" id="perfil"></div>
 
-<div id="fase" class="fase-box"></div>
+<div id="info"></div>
 <div id="stats"></div>
 
 <button onclick="acao('alimentar')"><img class="attr-icon" src="botao-alimentar.png"> Alimentar</button>
@@ -128,11 +103,33 @@ forca:10,
 disciplina:10,
 confianca:10,
 instinto:5,
-nascimento:Date.now(),
 fase:1
 };
 
-const fases=[
+if(!galo.nascimento){
+galo.nascimento = Date.now();
+salvar();
+}
+
+function salvar(){
+localStorage.setItem("galo",JSON.stringify(galo));
+}
+
+function media(){
+return (galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
+}
+
+function faseCalc(){
+let m=media();
+if(m<25)return 1;
+if(m<40)return 2;
+if(m<60)return 3;
+if(m<80)return 4;
+if(m<95)return 5;
+return 6;
+}
+
+const nomesFase=[
 "Pintinho do Calor",
 "Aprendiz do Território",
 "Vigilante Jovem",
@@ -141,42 +138,12 @@ const fases=[
 "Lenda Viva"
 ];
 
-function salvar(){
-localStorage.setItem("galo",JSON.stringify(galo));
-}
-
-function play(src){
-new Audio(src).play();
-}
-
-function nivel(){
-return Math.floor(
-(galo.vitalidade+
-galo.forca+
-galo.disciplina+
-galo.confianca+
-galo.instinto)/5
-);
-}
-
-function faseIndex(){
-let n=nivel();
-if(n<20)return 1;
-if(n<40)return 2;
-if(n<60)return 3;
-if(n<80)return 4;
-if(n<100)return 5;
-return 6;
-}
-
-function calcularIdade(){
+function idade(){
 let diff=Date.now()-galo.nascimento;
-
-let d=Math.floor(diff/86400000);
-let h=Math.floor(diff/3600000)%24;
-let m=Math.floor(diff/60000)%60;
-
-return `${d}d ${h}h ${m}m`;
+let dias=Math.floor(diff/86400000);
+let horas=Math.floor(diff/3600000)%24;
+let min=Math.floor(diff/60000)%60;
+return `${dias}d ${horas}h ${min}m`;
 }
 
 function personalidade(){
@@ -189,109 +156,58 @@ galo.confianca,
 galo.instinto
 );
 
-switch(maior){
-case galo.forca:return "Guerreiro";
-case galo.disciplina:return "Estrategista";
-case galo.confianca:return "Líder";
-case galo.instinto:return "Selvagem";
-default:return "Espírito em Formação";
-}
+if(maior===galo.forca)return"Dominante";
+if(maior===galo.disciplina)return"Estrategista";
+if(maior===galo.confianca)return"Guardião";
+if(maior===galo.instinto)return"Instintivo";
+return"Resiliente";
 }
 
-function acao(tipo){
+function atualizar(){
 
-if(tipo=="alimentar"){
-galo.vitalidade+=5;
-galo.forca+=2;
-play("click-alimentar.m4a");
+let fase=faseCalc();
+let nivel=Math.floor(media());
+
+document.getElementById("perfil").innerHTML=
+`<img src="fase-${fase}.png">`;
+
+document.getElementById("info").innerHTML=
+`<b>Nível ${nivel}</b> • ${nomesFase[fase-1]}<br>
+Idade: ${idade()}<br>
+Personalidade: ${personalidade()}`;
+
+document.getElementById("stats").innerHTML=`
+<div class="status"><img class="attr-icon" src="vitalidade.png">${galo.vitalidade}
+<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div></div>
+
+<div class="status"><img class="attr-icon" src="forca.png">${galo.forca}
+<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div></div>
+
+<div class="status"><img class="attr-icon" src="disciplina.png">${galo.disciplina}
+<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div></div>
+
+<div class="status"><img class="attr-icon" src="confianca.png">${galo.confianca}
+<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div></div>
+
+<div class="status"><img class="attr-icon" src="instinto.png">${galo.instinto}
+<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div></div>
+`;
 }
 
-if(tipo=="cuidar"){
-galo.vitalidade+=3;
-galo.confianca+=2;
-play("click-cuidar.m4a");
-}
+function acao(t){
 
-if(tipo=="movimento"){
-galo.forca+=4;
-galo.instinto+=2;
-play("click-movimento.m4a");
-}
+if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2}
+if(t==="cuidar"){galo.vitalidade+=3;galo.confianca+=2}
+if(t==="movimento"){galo.forca+=4;galo.instinto+=2}
+if(t==="contato"){galo.disciplina+=4;galo.confianca+=3}
+if(t==="observar"){galo.disciplina+=3;galo.instinto+=3}
 
-if(tipo=="contato"){
-galo.disciplina+=4;
-galo.confianca+=3;
-play("click-contato.m4a");
-}
-
-if(tipo=="observar"){
-galo.disciplina+=3;
-galo.instinto+=3;
-play("click-observar.m4a");
-}
-
-for(let k in galo)
-if(galo[k]>999)galo[k]=999;
+for(let k in galo) if(galo[k]>999) galo[k]=999;
 
 salvar();
 atualizar();
 }
 
-function atualizar(){
-
-let f=faseIndex();
-
-if(f!==galo.fase){
-play("fase"+f+".m4a");
-galo.fase=f;
-salvar();
-}
-
-document.getElementById("fase").innerHTML=
-`<img src="fase-${f}.png" class="fase-icon"> ${fases[f-1]}`;
-
-document.getElementById("info").innerHTML=
-`Nível ${nivel()} · ${fases[f-1]}<br>
-Idade: ${calcularIdade()}`;
-
-document.getElementById("personalidade").innerText=
-"Personalidade: "+personalidade();
-
-document.getElementById("stats").innerHTML=`
-
-<div class="status">
-<img class="attr-icon" src="vitalidade.png">
-${galo.vitalidade}
-<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>
-</div>
-
-<div class="status">
-<img class="attr-icon" src="forca.png">
-${galo.forca}
-<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>
-</div>
-
-<div class="status">
-<img class="attr-icon" src="disciplina.png">
-${galo.disciplina}
-<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>
-</div>
-
-<div class="status">
-<img class="attr-icon" src="confianca.png">
-${galo.confianca}
-<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>
-</div>
-
-<div class="status">
-<img class="attr-icon" src="instinto.png">
-${galo.instinto}
-<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>
-</div>
-`;
-}
-
-setInterval(atualizar,60000);
 atualizar();
 
 </script>
