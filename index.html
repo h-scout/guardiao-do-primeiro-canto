@@ -10,91 +10,51 @@
 <link rel="icon" href="icone-galo.png">
 
 <style>
-body {
-  background: linear-gradient(180deg, #d4af37, #b8962e);
-  color: #1a1a1a;
-  font-family: Arial, sans-serif;
-  padding: 20px;
+body{
+background:linear-gradient(180deg,#d4af37,#b8962e);
+color:#1a1a1a;
+font-family:Arial;
+padding:20px;
 }
 
-.titulo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+.titulo{display:flex;align-items:center;justify-content:center;gap:10px;}
+.icon-title{width:40px;height:40px;}
+
+.fase-box{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:bold;}
+.idade-box{text-align:center;font-size:14px;margin-bottom:10px;opacity:.8;}
+.personalidade{text-align:center;margin-bottom:20px;font-size:14px;}
+
+.fase-icon{width:36px;height:36px;}
+
+.status{margin:12px 0;display:flex;align-items:center;gap:8px;}
+.bar{background:rgba(0,0,0,.2);height:20px;width:100%;border-radius:10px;overflow:hidden;flex-grow:1;}
+.fill{height:100%;}
+.vitalidade{background:#e53935;}
+.forca{background:#6d4c41;}
+.disciplina{background:#1e88e5;}
+.confianca{background:#43a047;}
+.instinto{background:#fdd835;}
+
+button{
+width:100%;padding:14px;margin:6px 0;background:#1a1a1a;color:#fff;border:none;
+font-size:16px;border-radius:8px;display:flex;align-items:center;gap:8px;
 }
 
-.icon-title {
-  width: 40px;
-  height: 40px;
-}
-
-.fase-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.fase-icon {
-  width: 36px;
-  height: 36px;
-}
-
-.status {
-  margin: 12px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bar {
-  background: rgba(0,0,0,0.2);
-  height: 20px;
-  width: 100%;
-  border-radius: 10px;
-  overflow: hidden;
-  flex-grow: 1;
-}
-
-.fill { height: 100%; transition: width 0.3s; }
-.vitalidade { background: #e53935; }
-.forca { background: #6d4c41; }
-.disciplina { background: #1e88e5; }
-.confianca { background: #43a047; }
-.instinto { background: #fdd835; }
-
-button {
-  width: 100%;
-  padding: 14px;
-  margin: 6px 0;
-  background: #1a1a1a;
-  color: #fff;
-  border: none;
-  font-size: 16px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-img.attr-icon {
-  width: 32px;
-  height: 32px;
-}
+img.attr-icon{width:32px;height:32px;}
 </style>
 </head>
 
 <body>
 
 <h1 class="titulo">
-  <img src="icone-galo.png" class="icon-title">
-  O Guardião do Primeiro Canto
+<img src="icone-galo.png" class="icon-title">
+O Guardião do Primeiro Canto
 </h1>
 
 <div id="fase" class="fase-box"></div>
+<div id="idade" class="idade-box"></div>
+<div id="mente" class="personalidade"></div>
+
 <div id="stats"></div>
 
 <button onclick="acao('alimentar')"><img class="attr-icon" src="botao-alimentar.png"> Alimentar</button>
@@ -103,113 +63,145 @@ img.attr-icon {
 <button onclick="acao('contato')"><img class="attr-icon" src="botao-contato.png"> Contato calmo</button>
 <button onclick="acao('observar')"><img class="attr-icon" src="botao-observar.png"> Observação silenciosa</button>
 
-<div id="log"></div>
-
 <script>
+
+/* BASE */
+
 let galo = JSON.parse(localStorage.getItem("galo")) || {
-  vitalidade: 20, forca: 10, disciplina: 10, confianca: 10, instinto: 5
+vitalidade:20,forca:10,disciplina:10,confianca:10,instinto:5,
+
+coragem:10,
+temperamento:10,
+lealdade:10,
+foco:10,
+espirito:10,
+
+nascimento:Date.now(),
+ultimoLogin:Date.now(),
+interacoesHoje:0,
+ultimoDia:new Date().getDate()
 };
 
-let faseAnterior = null;
+/* TEMPO */
 
-// sons das fases
-const sonsFase = {
-  1: new Audio("fase1.m4a"),
-  2: new Audio("fase2.m4a"),
-  3: new Audio("fase3.m4a"),
-  4: new Audio("fase4.m4a"),
-  5: new Audio("fase5.m4a"),
-  6: new Audio("fase6.m4a")
-};
-
-// sons botões
-const sonsClique = {
-  alimentar: new Audio("click-alimentar.m4a"),
-  cuidar: new Audio("click-cuidar.m4a"),
-  movimento: new Audio("click-movimento.m4a"),
-  contato: new Audio("click-contato.m4a"),
-  observar: new Audio("click-observar.m4a")
-};
-
-const fases = [
-  "Pintinho do Calor",
-  "Aprendiz do Território",
-  "Vigilante Jovem",
-  "Galo em Formação",
-  "O Primeiro Canto",
-  "Galo Lendário"
-];
-
-function faseIndex() {
-  let m = (galo.vitalidade + galo.forca + galo.disciplina + galo.confianca + galo.instinto) / 5;
-  if (m < 25) return 1;
-  if (m < 40) return 2;
-  if (m < 60) return 3;
-  if (m < 80) return 4;
-  if (m < 95) return 5;
-  return 6;
+function offline(){
+let h=Math.floor((Date.now()-galo.ultimoLogin)/3600000);
+if(h>=6){
+galo.vitalidade-=Math.floor(h/6);
+galo.instinto+=Math.floor(h/6);
+if(galo.vitalidade<0)galo.vitalidade=0;
+}
+galo.ultimoLogin=Date.now();
 }
 
-function salvar() {
-  localStorage.setItem("galo", JSON.stringify(galo));
+/* IDADE */
+
+function dias(){return Math.floor((Date.now()-galo.nascimento)/86400000);}
+function faseVida(d){
+if(d<7)return"Filhote";
+if(d<30)return"Jovem";
+if(d<120)return"Adulto";
+if(d<365)return"Guardião Maduro";
+return"Lenda Viva";
 }
 
-function tocarSomClique(tipo){
-  let s = sonsClique[tipo];
-  if(s){
-    s.currentTime = 0;
-    s.play();
-  }
+/* PERSONALIDADE */
+
+function tituloMente(){
+let t=galo.temperamento;
+let c=galo.coragem;
+let l=galo.lealdade;
+let f=galo.foco;
+
+if(c>80 && f>80)return"General Supremo";
+if(l>80)return"Companheiro Absoluto";
+if(t>80)return"Tempestade Viva";
+if(f>80)return"Monge Guardião";
+return"Espírito em Formação";
 }
 
-function tocarSomFase(nova){
-  if(faseAnterior !== null && faseAnterior !== nova){
-    let s = sonsFase[nova];
-    if(s){
-      s.currentTime = 0;
-      s.play();
-    }
-  }
-  faseAnterior = nova;
+/* NÍVEL */
+
+function media(){
+return(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
 }
 
-function acao(tipo) {
-
-  tocarSomClique(tipo);
-
-  if (tipo === 'alimentar') { galo.vitalidade += 5; galo.forca += 2; }
-  if (tipo === 'cuidar') { galo.vitalidade += 3; galo.confianca += 2; }
-  if (tipo === 'movimento') { galo.forca += 4; galo.instinto += 2; }
-  if (tipo === 'contato') { galo.disciplina += 4; galo.confianca += 3; }
-  if (tipo === 'observar') { galo.disciplina += 3; galo.instinto += 3; }
-
-  for (let k in galo) if (galo[k] > 100) galo[k] = 100;
-
-  salvar();
-  atualizar();
+function tituloNivel(m){
+if(m<50)return"Recém-nascido";
+if(m<150)return"Jovem";
+if(m<400)return"Adulto";
+if(m<900)return"Guardião";
+if(m<2000)return"Alfa";
+return"Lendário Supremo";
 }
 
-function atualizar() {
-  let idx = faseIndex();
+/* DIA */
 
-  tocarSomFase(idx);
-
-  document.getElementById("fase").innerHTML = `
-    <img src="fase-${idx}.png" class="fase-icon">
-    Fase atual: ${fases[idx - 1]}
-  `;
-
-  document.getElementById("stats").innerHTML = `
-    <div class="status"><img class="attr-icon" src="vitalidade.png"> ${galo.vitalidade}<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div></div>
-    <div class="status"><img class="attr-icon" src="forca.png"> ${galo.forca}<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div></div>
-    <div class="status"><img class="attr-icon" src="disciplina.png"> ${galo.disciplina}<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div></div>
-    <div class="status"><img class="attr-icon" src="confianca.png"> ${galo.confianca}<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div></div>
-    <div class="status"><img class="attr-icon" src="instinto.png"> ${galo.instinto}<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div></div>
-  `;
+function novoDia(){
+let hoje=new Date().getDate();
+if(galo.ultimoDia!==hoje){
+galo.disciplina+=1;
+galo.foco+=1;
+galo.interacoesHoje=0;
+galo.ultimoDia=hoje;
+}
 }
 
-atualizar();
+/* SAVE */
+
+function salvar(){localStorage.setItem("galo",JSON.stringify(galo));}
+
+/* AÇÕES */
+
+function acao(t){
+
+new Audio("click-"+t+".m4a").play();
+
+galo.interacoesHoje++;
+
+if(t==='alimentar'){galo.vitalidade+=5;galo.forca+=2;galo.lealdade+=1;}
+if(t==='cuidar'){galo.vitalidade+=3;galo.confianca+=2;galo.espirito+=1;}
+if(t==='movimento'){galo.forca+=4;galo.instinto+=2;galo.coragem+=2;}
+if(t==='contato'){galo.disciplina+=4;galo.confianca+=3;galo.lealdade+=2;}
+if(t==='observar'){galo.disciplina+=3;galo.instinto+=3;galo.foco+=2;}
+
+salvar();
+update();
+}
+
+/* UI */
+
+function update(){
+
+let m=Math.floor(media());
+let d=dias();
+
+document.getElementById("fase").innerHTML=
+`<img src="fase-${Math.min(6,Math.floor(m/100)+1)}.png" class="fase-icon">
+Nível ${m} • ${tituloNivel(m)}`;
+
+document.getElementById("idade").innerHTML=
+`Idade: ${d} dias • ${faseVida(d)}`;
+
+document.getElementById("mente").innerHTML=
+`Personalidade: ${tituloMente()}`;
+
+document.getElementById("stats").innerHTML=`
+<div class="status"><img class="attr-icon" src="vitalidade.png"> ${galo.vitalidade}<div class="bar"><div class="fill vitalidade" style="width:${Math.min(100,galo.vitalidade)}%"></div></div></div>
+<div class="status"><img class="attr-icon" src="forca.png"> ${galo.forca}<div class="bar"><div class="fill forca" style="width:${Math.min(100,galo.forca)}%"></div></div></div>
+<div class="status"><img class="attr-icon" src="disciplina.png"> ${galo.disciplina}<div class="bar"><div class="fill disciplina" style="width:${Math.min(100,galo.disciplina)}%"></div></div></div>
+<div class="status"><img class="attr-icon" src="confianca.png"> ${galo.confianca}<div class="bar"><div class="fill confianca" style="width:${Math.min(100,galo.confianca)}%"></div></div></div>
+<div class="status"><img class="attr-icon" src="instinto.png"> ${galo.instinto}<div class="bar"><div class="fill instinto" style="width:${Math.min(100,galo.instinto)}%"></div></div></div>
+`;
+}
+
+/* INIT */
+
+offline();
+novoDia();
+salvar();
+update();
+
 </script>
-
 </body>
 </html>
