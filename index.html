@@ -105,7 +105,7 @@ O Guardião do Primeiro Canto
 
 <script>
 
-//========== DADOS ==========
+// DADOS
 let galo = JSON.parse(localStorage.getItem("galo")) || {
 vitalidade:20,
 forca:10,
@@ -114,7 +114,7 @@ confianca:10,
 instinto:5
 };
 
-//========== NASCIMENTO ==========
+// NASCIMENTO
 if(!galo.nascimento){
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
 let t=new Date(d).getTime();
@@ -132,12 +132,12 @@ salvar();
 atualizar();
 }
 
-//========== SALVAR ==========
+// SALVAR
 function salvar(){
 localStorage.setItem("galo",JSON.stringify(galo));
 }
 
-//========== IDADE ==========
+// IDADE
 function idade(){
 let diff=Date.now()-galo.nascimento;
 if(diff<0)diff=0;
@@ -149,7 +149,7 @@ let m=Math.floor((diff%3600000)/60000);
 return {d,h,m};
 }
 
-//========== FASE REAL ==========
+// FASE REAL
 function faseReal(d){
 if(d<7)return[1,"Recém-Nascido"];
 if(d<30)return[2,"Filhote"];
@@ -159,7 +159,7 @@ if(d<240)return[5,"Quase Adulto"];
 return[6,"Adulto"];
 }
 
-//========== PERSONALIDADE ==========
+// PERSONALIDADE
 function personalidade(){
 let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
 
@@ -170,19 +170,19 @@ if(m<90)return"Guardião Jovem";
 return"Guardião Supremo";
 }
 
-//========== NÍVEL ==========
+// NÍVEL
 function nivel(){
 return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);
 }
 
-//========== SOM ==========
+// SOM
 function tocar(n){
 let a=new Audio(n);
 a.volume=0.35;
 a.play();
 }
 
-//========== AÇÕES ==========
+// AÇÃO
 function acao(t){
 
 if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}
@@ -197,7 +197,7 @@ salvar();
 atualizar();
 }
 
-//========== RENDER ==========
+// RENDER
 function atualizar(){
 
 let id=idade();
@@ -206,35 +206,33 @@ let fase=faseReal(id.d);
 document.getElementById("perfil").src=`fase-${fase[0]}.png`;
 
 document.getElementById("nivel").innerText=`Nível ${nivel()} • ${fase[1]}`;
-
 document.getElementById("idade").innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
-
 document.getElementById("personalidade").innerText=`Personalidade: ${personalidade()}`;
 
 document.getElementById("stats").innerHTML=`
 
 <div class="status">
-<div class="linha"><img class="attr" src="icone-vitalidade.png"> ${galo.vitalidade}</div>
+<div class="linha"><img class="attr" src="vitalidade.png"> ${galo.vitalidade}</div>
 <div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>
 </div>
 
 <div class="status">
-<div class="linha"><img class="attr" src="icone-forca.png"> ${galo.forca}</div>
+<div class="linha"><img class="attr" src="forca.png"> ${galo.forca}</div>
 <div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>
 </div>
 
 <div class="status">
-<div class="linha"><img class="attr" src="icone-disciplina.png"> ${galo.disciplina}</div>
+<div class="linha"><img class="attr" src="disciplina.png"> ${galo.disciplina}</div>
 <div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>
 </div>
 
 <div class="status">
-<div class="linha"><img class="attr" src="icone-confianca.png"> ${galo.confianca}</div>
+<div class="linha"><img class="attr" src="confianca.png"> ${galo.confianca}</div>
 <div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>
 </div>
 
 <div class="status">
-<div class="linha"><img class="attr" src="icone-instinto.png"> ${galo.instinto}</div>
+<div class="linha"><img class="attr" src="instinto.png"> ${galo.instinto}</div>
 <div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>
 </div>
 `;
