@@ -116,10 +116,23 @@ instinto:5
 
 // NASCIMENTO
 if(!galo.nascimento){
+
+let salvo = localStorage.getItem("dataNascimentoManual");
+
+if(salvo){
+galo.nascimento = parseInt(salvo);
+}else{
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
-let t=new Date(d).getTime();
-galo.nascimento=isNaN(t)?Date.now():t;
+let t=new Date(d+"T00:00:00").getTime();
+
+if(isNaN(t)){
+t=Date.now();
+}
+
+galo.nascimento=t;
+localStorage.setItem("dataNascimentoManual",t);
 salvar();
+}
 }
 
 function alterarNascimento(){
