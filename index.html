@@ -16,6 +16,7 @@ color:#1a1a1a;
 font-family:Arial;
 padding:20px;
 text-align:center;
+margin:0;
 }
 
 .titulo{
@@ -33,35 +34,6 @@ margin:15px auto;
 display:block;
 }
 
-.status{
-margin:14px 0;
-text-align:left;
-}
-
-.linha{
-display:flex;
-align-items:center;
-gap:8px;
-margin-bottom:4px;
-}
-
-.attr{width:26px}
-
-.bar{
-background:rgba(0,0,0,0.25);
-height:20px;
-border-radius:10px;
-overflow:hidden;
-}
-
-.fill{height:100%}
-
-.vitalidade{background:#e53935}
-.forca{background:#6d4c41}
-.disciplina{background:#1e88e5}
-.confianca{background:#43a047}
-.instinto{background:#fdd835}
-
 button{
 width:100%;
 padding:16px;
@@ -71,16 +43,11 @@ color:#fff;
 border:none;
 font-size:17px;
 border-radius:12px;
-display:flex;
-align-items:center;
-gap:10px;
-justify-content:center;
+cursor:pointer;
 }
 
-.btnicon{width:34px}
-
 .login{
-max-width:300px;
+max-width:320px;
 margin:80px auto;
 background:#00000022;
 padding:20px;
@@ -99,35 +66,43 @@ font-size:16px;
 </head>
 
 <body>
-
 <div id="app"></div>
 
 <script>
+document.addEventListener("DOMContentLoaded",()=>{
+
 "use strict";
 
+const App = {
+
+usuario:null,
+galo:null,
+
+// ================= INIT =================
+init(){
+this.usuario = localStorage.getItem("usuarioAtual");
+this.usuario ? this.carregarJogo() : this.telaLogin();
+},
+
 // ================= LOGIN =================
-
-let usuarioAtual = localStorage.getItem("usuarioAtual");
-
-if(!usuarioAtual){
-document.getElementById("app").innerHTML=`
+telaLogin(){
+app.innerHTML=`
 <div class="login">
 <h2>Login do Guardião</h2>
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
-<button onclick="criarConta()">Criar Conta</button>
-<button onclick="login()">Entrar</button>
+<button id="btnCriar">Criar Conta</button>
+<button id="btnEntrar">Entrar</button>
 </div>
 `;
-}else{
-carregarJogo();
-}
 
-function criarConta(){
+btnCriar.onclick=()=>this.criarConta();
+btnEntrar.onclick=()=>this.login();
+},
 
+criarConta(){
 let u=user.value.trim();
 let p=pass.value.trim();
-
 if(!u||!p)return alert("Preencha tudo");
 
 if(localStorage.getItem("conta_"+u))
@@ -139,69 +114,64 @@ dados:null
 }));
 
 alert("Conta criada!");
-}
+},
 
-function login(){
-
+login(){
 let u=user.value.trim();
 let p=pass.value.trim();
 
 let conta=JSON.parse(localStorage.getItem("conta_"+u));
-
 if(!conta || conta.senha!==p)
 return alert("Login inválido");
 
 localStorage.setItem("usuarioAtual",u);
 location.reload();
-}
+},
 
-function logout(){
+logout(){
 localStorage.removeItem("usuarioAtual");
 location.reload();
-}
+},
 
 // ================= JOGO =================
-
-function carregarJogo(){
-
-document.getElementById("app").innerHTML=`
-
+carregarJogo(){
+app.innerHTML=`
 <h1 class="titulo">
 <img src="icone-galo.png" class="icon-title">
 O Guardião do Primeiro Canto
 </h1>
 
 <img id="perfil" class="perfil">
-
 <h2 id="nivel"></h2>
 <div id="idade"></div>
 <div id="personalidade"></div>
-
 <div id="stats"></div>
 
-<button onclick="acao('alimentar')"><img class="btnicon" src="botao-alimentar.png"> Alimentar</button>
-<button onclick="acao('cuidar')"><img class="btnicon" src="botao-cuidar.png"> Cuidar do espaço</button>
-<button onclick="acao('movimento')"><img class="btnicon" src="botao-movimento.png"> Movimento leve</button>
-<button onclick="acao('contato')"><img class="btnicon" src="botao-contato.png"> Contato calmo</button>
-<button onclick="acao('observar')"><img class="btnicon" src="botao-observar.png"> Observação silenciosa</button>
+<button data-acao="alimentar">Alimentar</button>
+<button data-acao="cuidar">Cuidar do espaço</button>
+<button data-acao="movimento">Movimento leve</button>
+<button data-acao="contato">Contato calmo</button>
+<button data-acao="observar">Observação silenciosa</button>
 
-<button onclick="alterarNascimento()">Alterar data nascimento</button>
-<button onclick="logout()">Trocar conta</button>
+<button id="alterar">Alterar data nascimento</button>
+<button id="logout">Trocar conta</button>
 `;
 
-iniciarSistema();
-}
+document.querySelectorAll("[data-acao]").forEach(btn=>{
+btn.onclick=()=>this.acao(btn.dataset.acao);
+});
 
-// ================= DADOS =================
+alterar.onclick=()=>this.alterarNascimento();
+logout.onclick=()=>this.logout();
 
-let galo;
-let dadosConta;
+this.iniciarSistema();
+},
 
-function iniciarSistema(){
+iniciarSistema(){
 
-dadosConta = JSON.parse(localStorage.getItem("conta_"+usuarioAtual));
+let conta = JSON.parse(localStorage.getItem("conta_"+this.usuario));
 
-galo = dadosConta.dados || {
+this.galo = conta.dados || {
 vitalidade:20,
 forca:10,
 disciplina:10,
@@ -210,154 +180,103 @@ instinto:5,
 nascimento:null
 };
 
-if(!galo.nascimento){
-
+if(!this.galo.nascimento){
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
 let t = Date.parse(d+"T00:00:00");
-
-galo.nascimento = isNaN(t) ? Date.now() : t;
-
-salvar();
+this.galo.nascimento = isNaN(t)?Date.now():t;
+this.salvar();
 }
 
-atualizar();
-}
+this.atualizar();
+},
 
-// ================= SALVAR =================
+salvar(){
+let conta = JSON.parse(localStorage.getItem("conta_"+this.usuario));
+conta.dados = this.galo;
+localStorage.setItem("conta_"+this.usuario,JSON.stringify(conta));
+},
 
-function salvar(){
-dadosConta.dados = galo;
-localStorage.setItem("conta_"+usuarioAtual,JSON.stringify(dadosConta));
-}
-
-// ================= DATA =================
-
-function alterarNascimento(){
-
+alterarNascimento(){
 let d=prompt("Nova data (AAAA-MM-DD)");
 if(!d)return;
-
 let t = Date.parse(d+"T00:00:00");
+if(isNaN(t))return alert("Data inválida");
+this.galo.nascimento=t;
+this.salvar();
+this.atualizar();
+},
 
-if(isNaN(t)) return alert("Data inválida");
-
-galo.nascimento=t;
-salvar();
-atualizar();
-}
-
-// ================= IDADE =================
-
-function idade(){
-
-let diff = Date.now()-galo.nascimento;
+// ================= LÓGICA =================
+idade(){
+let diff=Date.now()-this.galo.nascimento;
 if(diff<0)diff=0;
+return Math.floor(diff/86400000);
+},
 
-let d=Math.floor(diff/86400000);
-let h=Math.floor((diff%86400000)/3600000);
-let m=Math.floor((diff%3600000)/60000);
-
-return {d,h,m};
-}
-
-// ================= FASE =================
-
-function faseReal(d){
+fase(d){
 if(d<7)return[1,"Recém-Nascido"];
 if(d<30)return[2,"Filhote"];
 if(d<60)return[3,"Jovem"];
 if(d<120)return[4,"Adolescente"];
 if(d<240)return[5,"Quase Adulto"];
 return[6,"Adulto"];
-}
+},
 
-// ================= PERSONALIDADE =================
+nivel(){
+let g=this.galo;
+return Math.floor((g.vitalidade+g.forca+g.disciplina+g.confianca+g.instinto)/5);
+},
 
-function personalidade(){
-
-let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
-
-if(m<30)return"Instinto Selvagem";
-if(m<50)return"Espírito em Formação";
-if(m<70)return"Aprendiz Vigilante";
-if(m<90)return"Guardião Jovem";
+personalidade(){
+let n=this.nivel();
+if(n<30)return"Instinto Selvagem";
+if(n<50)return"Espírito em Formação";
+if(n<70)return"Aprendiz Vigilante";
+if(n<90)return"Guardião Jovem";
 return"Guardião Supremo";
-}
+},
 
-// ================= NÍVEL =================
+acao(tipo){
 
-function nivel(){
-return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);
-}
+if(tipo==="alimentar"){this.galo.vitalidade+=5;this.galo.forca+=2;}
+if(tipo==="cuidar"){this.galo.vitalidade+=3;this.galo.confianca+=2;}
+if(tipo==="movimento"){this.galo.forca+=4;this.galo.instinto+=2;}
+if(tipo==="contato"){this.galo.disciplina+=4;this.galo.confianca+=3;}
+if(tipo==="observar"){this.galo.disciplina+=3;this.galo.instinto+=3;}
 
-// ================= SOM =================
+for(let k in this.galo)
+if(typeof this.galo[k]==="number" && this.galo[k]>999)
+this.galo[k]=999;
 
-function tocar(n){
-let a=new Audio(n);
-a.volume=0.35;
-a.play();
-}
-
-// ================= AÇÕES =================
-
-function acao(t){
-
-if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}
-if(t==="cuidar"){galo.vitalidade+=3;galo.confianca+=2;tocar("click-cuidar.m4a");}
-if(t==="movimento"){galo.forca+=4;galo.instinto+=2;tocar("click-movimento.m4a");}
-if(t==="contato"){galo.disciplina+=4;galo.confianca+=3;tocar("click-contato.m4a");}
-if(t==="observar"){galo.disciplina+=3;galo.instinto+=3;tocar("click-observar.m4a");}
-
-for(let k in galo)
-if(typeof galo[k]==="number" && galo[k]>999)
-galo[k]=999;
-
-salvar();
-atualizar();
-}
+this.salvar();
+this.atualizar();
+},
 
 // ================= RENDER =================
+atualizar(){
 
-function atualizar(){
+let dias=this.idade();
+let fase=this.fase(dias);
 
-let id = idade();
-let fase = faseReal(id.d);
+perfil.src=`fase-${fase[0]}.png`;
+nivel.innerText=`Nível ${this.nivel()} • ${fase[1]}`;
+idade.innerText=`Idade: ${dias} dias`;
+personalidade.innerText=`Personalidade: ${this.personalidade()}`;
 
-document.getElementById("perfil").src=`fase-${fase[0]}.png`;
-
-document.getElementById("nivel").innerText=`Nível ${nivel()} • ${fase[1]}`;
-document.getElementById("idade").innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
-document.getElementById("personalidade").innerText=`Personalidade: ${personalidade()}`;
-
-document.getElementById("stats").innerHTML=`
-
-<div class="status">
-<div class="linha"><img class="attr" src="vitalidade.png"> ${galo.vitalidade}</div>
-<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>
-</div>
-
-<div class="status">
-<div class="linha"><img class="attr" src="forca.png"> ${galo.forca}</div>
-<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>
-</div>
-
-<div class="status">
-<div class="linha"><img class="attr" src="disciplina.png"> ${galo.disciplina}</div>
-<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>
-</div>
-
-<div class="status">
-<div class="linha"><img class="attr" src="confianca.png"> ${galo.confianca}</div>
-<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>
-</div>
-
-<div class="status">
-<div class="linha"><img class="attr" src="instinto.png"> ${galo.instinto}</div>
-<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>
-</div>
+stats.innerHTML=`
+Vitalidade: ${this.galo.vitalidade}<br>
+Força: ${this.galo.forca}<br>
+Disciplina: ${this.galo.disciplina}<br>
+Confiança: ${this.galo.confianca}<br>
+Instinto: ${this.galo.instinto}
 `;
 }
 
+};
+
+App.init();
+
+});
 </script>
 </body>
 </html>
