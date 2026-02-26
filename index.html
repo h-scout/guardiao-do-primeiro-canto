@@ -10,13 +10,13 @@
 <link rel="icon" href="icone-galo.png">
 
 <style>
+
 body{
 background:linear-gradient(180deg,#d4af37,#b8962e);
 color:#1a1a1a;
 font-family:Arial;
 padding:20px;
 text-align:center;
-margin:0;
 }
 
 .titulo{
@@ -43,11 +43,16 @@ color:#fff;
 border:none;
 font-size:17px;
 border-radius:12px;
-cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
 }
 
+.btn-icon{width:26px}
+
 .login{
-max-width:320px;
+max-width:300px;
 margin:80px auto;
 background:#00000022;
 padding:20px;
@@ -62,48 +67,82 @@ border-radius:8px;
 border:none;
 font-size:16px;
 }
+
+/* ATRIBUTOS */
+
+.status{
+margin:12px 0;
+text-align:left;
+}
+
+.linha{
+display:flex;
+align-items:center;
+gap:8px;
+margin-bottom:4px;
+font-weight:bold;
+}
+
+.attr-icon{
+width:22px;
+}
+
+.barra{
+height:16px;
+background:#00000033;
+border-radius:10px;
+overflow:hidden;
+}
+
+.progresso{
+height:100%;
+border-radius:10px;
+transition:width 0.4s ease;
+}
+
+.vitalidade{background:#e53935;}
+.forca{background:#6d4c41;}
+.disciplina{background:#1e88e5;}
+.confianca{background:#43a047;}
+.instinto{background:#fdd835;}
+
 </style>
 </head>
 
 <body>
+
 <div id="app"></div>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
 
-"use strict";
+// LOGIN
 
-const App = {
+let usuarioAtual = localStorage.getItem("usuarioAtual");
 
-usuario:null,
-galo:null,
+if(!usuarioAtual){
+mostrarLogin();
+}else{
+carregarJogo();
+}
 
-// ================= INIT =================
-init(){
-this.usuario = localStorage.getItem("usuarioAtual");
-this.usuario ? this.carregarJogo() : this.telaLogin();
-},
-
-// ================= LOGIN =================
-telaLogin(){
+function mostrarLogin(){
 app.innerHTML=`
 <div class="login">
 <h2>Login do Guardião</h2>
 <input id="user" placeholder="Usuário">
 <input id="pass" type="password" placeholder="Senha">
-<button id="btnCriar">Criar Conta</button>
-<button id="btnEntrar">Entrar</button>
+<button onclick="criarConta()">Criar Conta</button>
+<button onclick="login()">Entrar</button>
 </div>
 `;
+}
 
-btnCriar.onclick=()=>this.criarConta();
-btnEntrar.onclick=()=>this.login();
-},
+function criarConta(){
 
-criarConta(){
 let u=user.value.trim();
 let p=pass.value.trim();
-if(!u||!p)return alert("Preencha tudo");
+
+if(!u||!p) return alert("Preencha tudo");
 
 if(localStorage.getItem("conta_"+u))
 return alert("Usuário já existe");
@@ -114,64 +153,82 @@ dados:null
 }));
 
 alert("Conta criada!");
-},
+}
 
-login(){
+function login(){
+
 let u=user.value.trim();
 let p=pass.value.trim();
 
 let conta=JSON.parse(localStorage.getItem("conta_"+u));
+
 if(!conta || conta.senha!==p)
 return alert("Login inválido");
 
 localStorage.setItem("usuarioAtual",u);
 location.reload();
-},
+}
 
-logout(){
+function logout(){
 localStorage.removeItem("usuarioAtual");
 location.reload();
-},
+}
 
-// ================= JOGO =================
-carregarJogo(){
+
+// JOGO
+
+let galo;
+let dadosConta;
+
+function carregarJogo(){
+
 app.innerHTML=`
+
 <h1 class="titulo">
 <img src="icone-galo.png" class="icon-title">
 O Guardião do Primeiro Canto
 </h1>
 
 <img id="perfil" class="perfil">
+
 <h2 id="nivel"></h2>
 <div id="idade"></div>
 <div id="personalidade"></div>
+
 <div id="stats"></div>
 
-<button data-acao="alimentar">Alimentar</button>
-<button data-acao="cuidar">Cuidar do espaço</button>
-<button data-acao="movimento">Movimento leve</button>
-<button data-acao="contato">Contato calmo</button>
-<button data-acao="observar">Observação silenciosa</button>
+<button onclick="acao('alimentar')">
+<img src="botao-alimentar.png" class="btn-icon"> Alimentar
+</button>
 
-<button id="alterar">Alterar data nascimento</button>
-<button id="logout">Trocar conta</button>
+<button onclick="acao('cuidar')">
+<img src="botao-cuidar.png" class="btn-icon"> Cuidar do espaço
+</button>
+
+<button onclick="acao('movimento')">
+<img src="botao-movimento.png" class="btn-icon"> Movimento leve
+</button>
+
+<button onclick="acao('contato')">
+<img src="botao-contato.png" class="btn-icon"> Contato calmo
+</button>
+
+<button onclick="acao('observar')">
+<img src="botao-observar.png" class="btn-icon"> Observação silenciosa
+</button>
+
+<button onclick="alterarNascimento()">Alterar data nascimento</button>
+<button onclick="logout()">Trocar conta</button>
 `;
 
-document.querySelectorAll("[data-acao]").forEach(btn=>{
-btn.onclick=()=>this.acao(btn.dataset.acao);
-});
+iniciarSistema();
+}
 
-alterar.onclick=()=>this.alterarNascimento();
-logout.onclick=()=>this.logout();
+function iniciarSistema(){
 
-this.iniciarSistema();
-},
+dadosConta = JSON.parse(localStorage.getItem("conta_"+usuarioAtual));
 
-iniciarSistema(){
-
-let conta = JSON.parse(localStorage.getItem("conta_"+this.usuario));
-
-this.galo = conta.dados || {
+galo = dadosConta.dados || {
 vitalidade:20,
 forca:10,
 disciplina:10,
@@ -180,103 +237,143 @@ instinto:5,
 nascimento:null
 };
 
-if(!this.galo.nascimento){
+if(!galo.nascimento){
+
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
 let t = Date.parse(d+"T00:00:00");
-this.galo.nascimento = isNaN(t)?Date.now():t;
-this.salvar();
+
+galo.nascimento = isNaN(t)?Date.now():t;
+salvar();
 }
 
-this.atualizar();
-},
+atualizar();
+}
 
-salvar(){
-let conta = JSON.parse(localStorage.getItem("conta_"+this.usuario));
-conta.dados = this.galo;
-localStorage.setItem("conta_"+this.usuario,JSON.stringify(conta));
-},
+function salvar(){
+dadosConta.dados=galo;
+localStorage.setItem("conta_"+usuarioAtual,JSON.stringify(dadosConta));
+}
 
-alterarNascimento(){
+function alterarNascimento(){
+
 let d=prompt("Nova data (AAAA-MM-DD)");
 if(!d)return;
-let t = Date.parse(d+"T00:00:00");
-if(isNaN(t))return alert("Data inválida");
-this.galo.nascimento=t;
-this.salvar();
-this.atualizar();
-},
 
-// ================= LÓGICA =================
-idade(){
-let diff=Date.now()-this.galo.nascimento;
+let t=Date.parse(d+"T00:00:00");
+if(isNaN(t)) return alert("Data inválida");
+
+galo.nascimento=t;
+salvar();
+atualizar();
+}
+
+
+// SISTEMA
+
+function idade(){
+
+let diff=Date.now()-galo.nascimento;
 if(diff<0)diff=0;
-return Math.floor(diff/86400000);
-},
 
-fase(d){
+let d=Math.floor(diff/86400000);
+let h=Math.floor((diff%86400000)/3600000);
+let m=Math.floor((diff%3600000)/60000);
+
+return {d,h,m};
+}
+
+function faseReal(d){
 if(d<7)return[1,"Recém-Nascido"];
 if(d<30)return[2,"Filhote"];
 if(d<60)return[3,"Jovem"];
 if(d<120)return[4,"Adolescente"];
 if(d<240)return[5,"Quase Adulto"];
 return[6,"Adulto"];
-},
+}
 
-nivel(){
-let g=this.galo;
-return Math.floor((g.vitalidade+g.forca+g.disciplina+g.confianca+g.instinto)/5);
-},
+function personalidade(){
 
-personalidade(){
-let n=this.nivel();
-if(n<30)return"Instinto Selvagem";
-if(n<50)return"Espírito em Formação";
-if(n<70)return"Aprendiz Vigilante";
-if(n<90)return"Guardião Jovem";
+let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
+
+if(m<30)return"Instinto Selvagem";
+if(m<50)return"Espírito em Formação";
+if(m<70)return"Aprendiz Vigilante";
+if(m<90)return"Guardião Jovem";
 return"Guardião Supremo";
-},
+}
 
-acao(tipo){
+function nivel(){
+return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);
+}
 
-if(tipo==="alimentar"){this.galo.vitalidade+=5;this.galo.forca+=2;}
-if(tipo==="cuidar"){this.galo.vitalidade+=3;this.galo.confianca+=2;}
-if(tipo==="movimento"){this.galo.forca+=4;this.galo.instinto+=2;}
-if(tipo==="contato"){this.galo.disciplina+=4;this.galo.confianca+=3;}
-if(tipo==="observar"){this.galo.disciplina+=3;this.galo.instinto+=3;}
 
-for(let k in this.galo)
-if(typeof this.galo[k]==="number" && this.galo[k]>999)
-this.galo[k]=999;
+// AÇÕES
 
-this.salvar();
-this.atualizar();
-},
+function tocar(n){
+let a=new Audio(n);
+a.volume=0.35;
+a.play();
+}
 
-// ================= RENDER =================
-atualizar(){
+function acao(t){
 
-let dias=this.idade();
-let fase=this.fase(dias);
+if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}
+if(t==="cuidar"){galo.vitalidade+=3;galo.confianca+=2;tocar("click-cuidar.m4a");}
+if(t==="movimento"){galo.forca+=4;galo.instinto+=2;tocar("click-movimento.m4a");}
+if(t==="contato"){galo.disciplina+=4;galo.confianca+=3;tocar("click-contato.m4a");}
+if(t==="observar"){galo.disciplina+=3;galo.instinto+=3;tocar("click-observar.m4a");}
+
+for(let k in galo)
+if(typeof galo[k]==="number" && galo[k]>100)
+galo[k]=100;
+
+salvar();
+atualizar();
+}
+
+
+// RENDER
+
+function atualizar(){
+
+let id=idade();
+let fase=faseReal(id.d);
 
 perfil.src=`fase-${fase[0]}.png`;
-nivel.innerText=`Nível ${this.nivel()} • ${fase[1]}`;
-idade.innerText=`Idade: ${dias} dias`;
-personalidade.innerText=`Personalidade: ${this.personalidade()}`;
+
+nivel.innerText=`Nível ${nivel()} • ${fase[1]}`;
+idade.innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
+personalidade.innerText=`Personalidade: ${personalidade()}`;
 
 stats.innerHTML=`
-Vitalidade: ${this.galo.vitalidade}<br>
-Força: ${this.galo.forca}<br>
-Disciplina: ${this.galo.disciplina}<br>
-Confiança: ${this.galo.confianca}<br>
-Instinto: ${this.galo.instinto}
+
+<div class="status">
+<div class="linha"><img src="vitalidade.png" class="attr-icon"> Vitalidade: ${galo.vitalidade}</div>
+<div class="barra"><div class="progresso vitalidade" style="width:${galo.vitalidade}%"></div></div>
+</div>
+
+<div class="status">
+<div class="linha"><img src="forca.png" class="attr-icon"> Força: ${galo.forca}</div>
+<div class="barra"><div class="progresso forca" style="width:${galo.forca}%"></div></div>
+</div>
+
+<div class="status">
+<div class="linha"><img src="disciplina.png" class="attr-icon"> Disciplina: ${galo.disciplina}</div>
+<div class="barra"><div class="progresso disciplina" style="width:${galo.disciplina}%"></div></div>
+</div>
+
+<div class="status">
+<div class="linha"><img src="confianca.png" class="attr-icon"> Confiança: ${galo.confianca}</div>
+<div class="barra"><div class="progresso confianca" style="width:${galo.confianca}%"></div></div>
+</div>
+
+<div class="status">
+<div class="linha"><img src="instinto.png" class="attr-icon"> Instinto: ${galo.instinto}</div>
+<div class="barra"><div class="progresso instinto" style="width:${galo.instinto}%"></div></div>
+</div>
 `;
 }
 
-};
-
-App.init();
-
-});
 </script>
 </body>
 </html>
