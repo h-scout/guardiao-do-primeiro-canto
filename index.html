@@ -74,13 +74,96 @@ border-radius:12px;
 display:flex;
 align-items:center;
 gap:10px;
+justify-content:center;
 }
 
 .btnicon{width:34px}
+
+.login{
+max-width:300px;
+margin:80px auto;
+background:#00000022;
+padding:20px;
+border-radius:15px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:8px;
+border:none;
+font-size:16px;
+}
 </style>
 </head>
 
 <body>
+
+<div id="app"></div>
+
+<script>
+
+// ================= LOGIN SYSTEM =================
+
+let usuarioAtual = localStorage.getItem("usuarioAtual");
+
+if(!usuarioAtual){
+document.getElementById("app").innerHTML=`
+<div class="login">
+<h2>Login do Guardião</h2>
+<input id="user" placeholder="Usuário">
+<input id="pass" type="password" placeholder="Senha">
+<button onclick="criarConta()">Criar Conta</button>
+<button onclick="login()">Entrar</button>
+</div>
+`;
+}else{
+carregarJogo();
+}
+
+function criarConta(){
+
+let u=user.value.trim();
+let p=pass.value.trim();
+
+if(!u||!p)return alert("Preencha tudo");
+
+if(localStorage.getItem("conta_"+u))
+return alert("Usuário já existe");
+
+localStorage.setItem("conta_"+u,JSON.stringify({
+senha:p,
+dados:null
+}));
+
+alert("Conta criada!");
+}
+
+function login(){
+
+let u=user.value.trim();
+let p=pass.value.trim();
+
+let conta=JSON.parse(localStorage.getItem("conta_"+u));
+
+if(!conta || conta.senha!==p)
+return alert("Login inválido");
+
+localStorage.setItem("usuarioAtual",u);
+location.reload();
+}
+
+function logout(){
+localStorage.removeItem("usuarioAtual");
+location.reload();
+}
+
+// ================= JOGO =================
+
+function carregarJogo(){
+
+document.getElementById("app").innerHTML=`
 
 <h1 class="titulo">
 <img src="icone-galo.png" class="icon-title">
@@ -102,57 +185,70 @@ O Guardião do Primeiro Canto
 <button onclick="acao('observar')"><img class="btnicon" src="botao-observar.png"> Observação silenciosa</button>
 
 <button onclick="alterarNascimento()">Alterar data nascimento</button>
+<button onclick="logout()">Trocar conta</button>
+`;
 
-<script>
+iniciarSistema();
+}
 
-// DADOS
-let galo = JSON.parse(localStorage.getItem("galo")) || {
+// ================= DADOS =================
+
+let galo;
+let dadosConta;
+
+function iniciarSistema(){
+
+dadosConta = JSON.parse(localStorage.getItem("conta_"+usuarioAtual));
+
+galo = dadosConta.dados || {
 vitalidade:20,
 forca:10,
 disciplina:10,
 confianca:10,
-instinto:5
+instinto:5,
+nascimento:null
 };
 
 // NASCIMENTO
 if(!galo.nascimento){
 
-let salvo = localStorage.getItem("dataNascimentoManual");
-
-if(salvo){
-galo.nascimento = parseInt(salvo);
-}else{
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
-let t=new Date(d+"T00:00:00").getTime();
 
-if(isNaN(t)){
-t=Date.now();
-}
+let t = Date.parse(d+"T00:00:00");
 
-galo.nascimento=t;
-localStorage.setItem("dataNascimentoManual",t);
+galo.nascimento = isNaN(t) ? Date.now() : t;
+
 salvar();
 }
-}
 
-function alterarNascimento(){
-let d=prompt("Nova data (AAAA-MM-DD)");
-if(!d)return;
-let t=new Date(d).getTime();
-if(isNaN(t))return alert("Data inválida");
-galo.nascimento=t;
-salvar();
 atualizar();
 }
 
 // SALVAR
 function salvar(){
-localStorage.setItem("galo",JSON.stringify(galo));
+dadosConta.dados = galo;
+localStorage.setItem("conta_"+usuarioAtual,JSON.stringify(dadosConta));
 }
 
-// IDADE
+// ALTERAR DATA
+function alterarNascimento(){
+
+let d=prompt("Nova data (AAAA-MM-DD)");
+if(!d)return;
+
+let t = Date.parse(d+"T00:00:00");
+
+if(isNaN(t)) return alert("Data inválida");
+
+galo.nascimento=t;
+salvar();
+atualizar();
+}
+
+// IDADE REAL
 function idade(){
-let diff=Date.now()-galo.nascimento;
+
+let diff = Date.now()-galo.nascimento;
 if(diff<0)diff=0;
 
 let d=Math.floor(diff/86400000);
@@ -174,6 +270,7 @@ return[6,"Adulto"];
 
 // PERSONALIDADE
 function personalidade(){
+
 let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
 
 if(m<30)return"Instinto Selvagem";
@@ -195,7 +292,7 @@ a.volume=0.35;
 a.play();
 }
 
-// AÇÃO
+// AÇÕES
 function acao(t){
 
 if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}
@@ -204,7 +301,7 @@ if(t==="movimento"){galo.forca+=4;galo.instinto+=2;tocar("click-movimento.m4a");
 if(t==="contato"){galo.disciplina+=4;galo.confianca+=3;tocar("click-contato.m4a");}
 if(t==="observar"){galo.disciplina+=3;galo.instinto+=3;tocar("click-observar.m4a");}
 
-for(let k in galo) if(galo[k]>999) galo[k]=999;
+for(let k in galo) if(typeof galo[k]==="number" && galo[k]>999) galo[k]=999;
 
 salvar();
 atualizar();
@@ -216,13 +313,13 @@ function atualizar(){
 let id=idade();
 let fase=faseReal(id.d);
 
-document.getElementById("perfil").src=`fase-${fase[0]}.png`;
+perfil.src=`fase-${fase[0]}.png`;
 
-document.getElementById("nivel").innerText=`Nível ${nivel()} • ${fase[1]}`;
-document.getElementById("idade").innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
-document.getElementById("personalidade").innerText=`Personalidade: ${personalidade()}`;
+nivel.innerText=`Nível ${nivel()} • ${fase[1]}`;
+idade.innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
+personalidade.innerText=`Personalidade: ${personalidade()}`;
 
-document.getElementById("stats").innerHTML=`
+stats.innerHTML=`
 
 <div class="status">
 <div class="linha"><img class="attr" src="vitalidade.png"> ${galo.vitalidade}</div>
@@ -251,7 +348,6 @@ document.getElementById("stats").innerHTML=`
 `;
 }
 
-atualizar();
 </script>
 </body>
 </html>
