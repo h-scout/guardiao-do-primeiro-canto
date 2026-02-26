@@ -103,8 +103,9 @@ font-size:16px;
 <div id="app"></div>
 
 <script>
+"use strict";
 
-// ================= LOGIN SYSTEM =================
+// ================= LOGIN =================
 
 let usuarioAtual = localStorage.getItem("usuarioAtual");
 
@@ -209,11 +210,9 @@ instinto:5,
 nascimento:null
 };
 
-// NASCIMENTO
 if(!galo.nascimento){
 
 let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
-
 let t = Date.parse(d+"T00:00:00");
 
 galo.nascimento = isNaN(t) ? Date.now() : t;
@@ -224,13 +223,15 @@ salvar();
 atualizar();
 }
 
-// SALVAR
+// ================= SALVAR =================
+
 function salvar(){
 dadosConta.dados = galo;
 localStorage.setItem("conta_"+usuarioAtual,JSON.stringify(dadosConta));
 }
 
-// ALTERAR DATA
+// ================= DATA =================
+
 function alterarNascimento(){
 
 let d=prompt("Nova data (AAAA-MM-DD)");
@@ -245,7 +246,8 @@ salvar();
 atualizar();
 }
 
-// IDADE REAL
+// ================= IDADE =================
+
 function idade(){
 
 let diff = Date.now()-galo.nascimento;
@@ -258,7 +260,8 @@ let m=Math.floor((diff%3600000)/60000);
 return {d,h,m};
 }
 
-// FASE REAL
+// ================= FASE =================
+
 function faseReal(d){
 if(d<7)return[1,"Recém-Nascido"];
 if(d<30)return[2,"Filhote"];
@@ -268,7 +271,8 @@ if(d<240)return[5,"Quase Adulto"];
 return[6,"Adulto"];
 }
 
-// PERSONALIDADE
+// ================= PERSONALIDADE =================
+
 function personalidade(){
 
 let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;
@@ -280,19 +284,22 @@ if(m<90)return"Guardião Jovem";
 return"Guardião Supremo";
 }
 
-// NÍVEL
+// ================= NÍVEL =================
+
 function nivel(){
 return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);
 }
 
-// SOM
+// ================= SOM =================
+
 function tocar(n){
 let a=new Audio(n);
 a.volume=0.35;
 a.play();
 }
 
-// AÇÕES
+// ================= AÇÕES =================
+
 function acao(t){
 
 if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}
@@ -301,25 +308,28 @@ if(t==="movimento"){galo.forca+=4;galo.instinto+=2;tocar("click-movimento.m4a");
 if(t==="contato"){galo.disciplina+=4;galo.confianca+=3;tocar("click-contato.m4a");}
 if(t==="observar"){galo.disciplina+=3;galo.instinto+=3;tocar("click-observar.m4a");}
 
-for(let k in galo) if(typeof galo[k]==="number" && galo[k]>999) galo[k]=999;
+for(let k in galo)
+if(typeof galo[k]==="number" && galo[k]>999)
+galo[k]=999;
 
 salvar();
 atualizar();
 }
 
-// RENDER
+// ================= RENDER =================
+
 function atualizar(){
 
-let id=idade();
-let fase=faseReal(id.d);
+let id = idade();
+let fase = faseReal(id.d);
 
-perfil.src=`fase-${fase[0]}.png`;
+document.getElementById("perfil").src=`fase-${fase[0]}.png`;
 
-nivel.innerText=`Nível ${nivel()} • ${fase[1]}`;
-idade.innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
-personalidade.innerText=`Personalidade: ${personalidade()}`;
+document.getElementById("nivel").innerText=`Nível ${nivel()} • ${fase[1]}`;
+document.getElementById("idade").innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;
+document.getElementById("personalidade").innerText=`Personalidade: ${personalidade()}`;
 
-stats.innerHTML=`
+document.getElementById("stats").innerHTML=`
 
 <div class="status">
 <div class="linha"><img class="attr" src="vitalidade.png"> ${galo.vitalidade}</div>
