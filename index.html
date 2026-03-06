@@ -1,23 +1,27 @@
-<!DOCTYPE html>  <html lang="pt-br">    <head>    
-<meta charset="UTF-8">    
-<title>O Guardião do Primeiro Canto</title>  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-<meta name="theme-color" content="#d4af37">    
-<link rel="manifest" href="manifest.json">    
-<link rel="icon" href="icone-galo.png">  <style>    
-body{    
-background:linear-gradient(180deg,#d4af37,#b8962e);    
-color:#1a1a1a;    
-font-family:Arial;    
-padding:20px;    
-text-align:center;    
-}    .titulo{
+<!DOCTYPE html><html lang="pt-br"><head>
+<meta charset="UTF-8">
+<title>O Guardião do Primeiro Canto</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#d4af37"><link rel="manifest" href="manifest.json">
+<link rel="icon" href="icone-galo.png"><style>
+
+body{
+background:linear-gradient(180deg,#d4af37,#b8962e);
+color:#1a1a1a;
+font-family:Arial;
+padding:20px;
+text-align:center;
+}
+
+.titulo{
 display:flex;
 align-items:center;
 justify-content:center;
 gap:10px;
 }
 
-.icon-title{width:42px}
+.icon-title{
+width:42px;
+}
 
 .perfil{
 width:120px;
@@ -37,7 +41,9 @@ gap:8px;
 margin-bottom:4px;
 }
 
-.attr{width:26px}
+.attr{
+width:26px;
+}
 
 .bar{
 background:rgba(0,0,0,0.25);
@@ -46,7 +52,9 @@ border-radius:10px;
 overflow:hidden;
 }
 
-.fill{height:100%}
+.fill{
+height:100%;
+}
 
 .vitalidade{background:#e53935}
 .forca{background:#6d4c41}
@@ -66,155 +74,282 @@ border-radius:12px;
 display:flex;
 align-items:center;
 gap:10px;
+justify-content:center;
 }
 
-.btnicon{width:34px}
-</style>  </head>  <body>  <h1 class="titulo">
+.btnicon{
+width:34px;
+}
+
+</style></head><body><h1 class="titulo">
 <img src="icone-galo.png" class="icon-title">
 O Guardião do Primeiro Canto
+</h1><img id="perfil" class="perfil"><h2 id="nivel"></h2>
+<div id="idade"></div>
+<div id="personalidade"></div><div id="stats"></div><button onclick="acao('alimentar')">
+<img class="btnicon" src="botao-alimentar.png">
+Alimentar
+</button><button onclick="acao('cuidar')">
+<img class="btnicon" src="botao-cuidar.png">
+Cuidar do espaço
+</button><button onclick="acao('movimento')">
+<img class="btnicon" src="botao-movimento.png">
+Movimento leve
+</button><button onclick="acao('contato')">
+<img class="btnicon" src="botao-contato.png">
+Contato calmo
+</button><button onclick="acao('observar')">
+<img class="btnicon" src="botao-observar.png">
+Observação silenciosa
+</button><button onclick="alterarNascimento()">
+Alterar data nascimento
+</button><script>
 
-</h1>  <img id="perfil" class="perfil">  <h2 id="nivel"></h2>    
-<div id="idade"></div>    
-<div id="personalidade"></div>  <div id="stats"></div>  <button onclick="acao('alimentar')"><img class="btnicon" src="botao-alimentar.png"> Alimentar</button>  
-<button onclick="acao('cuidar')"><img class="btnicon" src="botao-cuidar.png"> Cuidar do espaço</button>  
-<button onclick="acao('movimento')"><img class="btnicon" src="botao-movimento.png"> Movimento leve</button>  
-<button onclick="acao('contato')"><img class="btnicon" src="botao-contato.png"> Contato calmo</button>  
-<button onclick="acao('observar')"><img class="btnicon" src="botao-observar.png"> Observação silenciosa</button>  <button onclick="alterarNascimento()">Alterar data nascimento</button>
+// ================= DADOS =================
 
-<script>    
-    
-// DADOS    
-let galo = JSON.parse(localStorage.getItem("galo")) || {    
-vitalidade:20,    
-forca:10,    
-disciplina:10,    
-confianca:10,    
-instinto:5    
-};    
-    
-// NASCIMENTO    
-if(!galo.nascimento){    
-let d=prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");    
-let t=new Date(d).getTime();    
-galo.nascimento=isNaN(t)?Date.now():t;    
-salvar();    
-}    
-    
-function alterarNascimento(){    
-let d=prompt("Nova data (AAAA-MM-DD)");    
-if(!d)return;    
-let t=new Date(d).getTime();    
-if(isNaN(t))return alert("Data inválida");    
-galo.nascimento=t;    
-salvar();    
-atualizar();    
-}    
-    
-// SALVAR    
-function salvar(){    
-localStorage.setItem("galo",JSON.stringify(galo));    
-}    
-    
-// IDADE    
-function idade(){    
-let diff=Date.now()-galo.nascimento;    
-if(diff<0)diff=0;    
-    
-let d=Math.floor(diff/86400000);    
-let h=Math.floor((diff%86400000)/3600000);    
-let m=Math.floor((diff%3600000)/60000);    
-    
-return {d,h,m};    
-}    
-    
-// FASE REAL    
-function faseReal(d){    
-if(d<7)return[1,"Recém-Nascido"];    
-if(d<30)return[2,"Filhote"];    
-if(d<60)return[3,"Jovem"];    
-if(d<120)return[4,"Adolescente"];    
-if(d<240)return[5,"Quase Adulto"];    
-return[6,"Adulto"];    
-}    
-    
-// PERSONALIDADE    
-function personalidade(){    
-let m=(galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5;    
-    
-if(m<30)return"Instinto Selvagem";    
-if(m<50)return"Espírito em Formação";    
-if(m<70)return"Aprendiz Vigilante";    
-if(m<90)return"Guardião Jovem";    
-return"Guardião Supremo";    
-}    
-    
-// NÍVEL    
-function nivel(){    
-return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);    
-}    
-    
-// SOM    
-function tocar(n){    
-let a=new Audio(n);    
-a.volume=0.35;    
-a.play();    
-}    
-    
-// AÇÃO    
-function acao(t){    
-    
-if(t==="alimentar"){galo.vitalidade+=5;galo.forca+=2;tocar("click-alimentar.m4a");}    
-if(t==="cuidar"){galo.vitalidade+=3;galo.confianca+=2;tocar("click-cuidar.m4a");}    
-if(t==="movimento"){galo.forca+=4;galo.instinto+=2;tocar("click-movimento.m4a");}    
-if(t==="contato"){galo.disciplina+=4;galo.confianca+=3;tocar("click-contato.m4a");}    
-if(t==="observar"){galo.disciplina+=3;galo.instinto+=3;tocar("click-observar.m4a");}    
-    
-for(let k in galo) if(galo[k]>999) galo[k]=999;    
-    
-salvar();    
-atualizar();    
-}    
-    
-// RENDER    
-function atualizar(){    
-    
-let id=idade();    
-let fase=faseReal(id.d);    
-    
-document.getElementById("perfil").src=`fase-${fase[0]}.png`;    
-    
-document.getElementById("nivel").innerText=`Nível ${nivel()} • ${fase[1]}`;    
-document.getElementById("idade").innerText=`Idade: ${id.d}d ${id.h}h ${id.m}m`;    
-document.getElementById("personalidade").innerText=`Personalidade: ${personalidade()}`;    
-    
-document.getElementById("stats").innerHTML=`    
-    
-<div class="status">    
-<div class="linha"><img class="attr" src="vitalidade.png"> ${galo.vitalidade}</div>    
-<div class="bar"><div class="fill vitalidade" style="width:${galo.vitalidade}%"></div></div>    
-</div>    
-    
-<div class="status">    
-<div class="linha"><img class="attr" src="forca.png"> ${galo.forca}</div>    
-<div class="bar"><div class="fill forca" style="width:${galo.forca}%"></div></div>    
-</div>    
-    
-<div class="status">    
-<div class="linha"><img class="attr" src="disciplina.png"> ${galo.disciplina}</div>    
-<div class="bar"><div class="fill disciplina" style="width:${galo.disciplina}%"></div></div>    
-</div>    
-    
-<div class="status">    
-<div class="linha"><img class="attr" src="confianca.png"> ${galo.confianca}</div>    
-<div class="bar"><div class="fill confianca" style="width:${galo.confianca}%"></div></div>    
-</div>    
-    
-<div class="status">    
-<div class="linha"><img class="attr" src="instinto.png"> ${galo.instinto}</div>    
-<div class="bar"><div class="fill instinto" style="width:${galo.instinto}%"></div></div>    
-</div>    
-`;    
-}    
-    
-atualizar();    
-</script>  </body>    </html>
+let galo = JSON.parse(localStorage.getItem("galo")) || {
+
+vitalidade:20,
+forca:10,
+disciplina:10,
+confianca:10,
+instinto:5,
+nascimento:null,
+faseSom:0
+
+};
+
+// ================= DATA NASCIMENTO =================
+
+if(!galo.nascimento){
+
+let d = prompt("Data nascimento (AAAA-MM-DD)","2026-01-28");
+
+let p = d.split("-");
+let data = new Date(p[0],p[1]-1,p[2]);
+
+let t = data.getTime();
+
+galo.nascimento = isNaN(t) ? Date.now() : t;
+
+salvar();
+
+}
+
+// alterar data
+
+function alterarNascimento(){
+
+let d = prompt("Nova data (AAAA-MM-DD)");
+
+if(!d)return;
+
+let p = d.split("-");
+let data = new Date(p[0],p[1]-1,p[2]);
+
+let t = data.getTime();
+
+if(isNaN(t)){
+alert("Data inválida");
+return;
+}
+
+galo.nascimento = t;
+
+salvar();
+atualizar();
+
+}
+
+// ================= SALVAR =================
+
+function salvar(){
+
+localStorage.setItem("galo",JSON.stringify(galo));
+
+}
+
+// ================= IDADE =================
+
+function idade(){
+
+let diff = Date.now() - galo.nascimento;
+
+if(diff < 0) diff = 0;
+
+let d = Math.floor(diff/86400000);
+let h = Math.floor((diff%86400000)/3600000);
+let m = Math.floor((diff%3600000)/60000);
+
+return {d,h,m};
+
+}
+
+// ================= FASE =================
+
+function faseReal(d){
+
+if(d<7) return [1,"Recém-Nascido"];
+if(d<30) return [2,"Filhote"];
+if(d<60) return [3,"Jovem"];
+if(d<120) return [4,"Adolescente"];
+if(d<240) return [5,"Quase Adulto"];
+
+return [6,"Adulto"];
+
+}
+
+// ================= PERSONALIDADE =================
+
+function personalidade(){
+
+let m = (galo.vitalidade + galo.forca + galo.disciplina + galo.confianca + galo.instinto)/5;
+
+if(m<30) return "Instinto Selvagem";
+if(m<50) return "Espírito em Formação";
+if(m<70) return "Aprendiz Vigilante";
+if(m<90) return "Guardião Jovem";
+
+return "Guardião Supremo";
+
+}
+
+// ================= NÍVEL =================
+
+function nivel(){
+
+return Math.floor((galo.vitalidade+galo.forca+galo.disciplina+galo.confianca+galo.instinto)/5);
+
+}
+
+// ================= SOM =================
+
+function tocar(nome){
+
+let a = new Audio(nome);
+a.volume = 0.35;
+a.play();
+
+}
+
+// ================= AÇÕES =================
+
+function acao(t){
+
+if(t==="alimentar"){
+galo.vitalidade+=5;
+galo.forca+=2;
+tocar("click-alimentar.m4a");
+}
+
+if(t==="cuidar"){
+galo.vitalidade+=3;
+galo.confianca+=2;
+tocar("click-cuidar.m4a");
+}
+
+if(t==="movimento"){
+galo.forca+=4;
+galo.instinto+=2;
+tocar("click-movimento.m4a");
+}
+
+if(t==="contato"){
+galo.disciplina+=4;
+galo.confianca+=3;
+tocar("click-contato.m4a");
+}
+
+if(t==="observar"){
+galo.disciplina+=3;
+galo.instinto+=3;
+tocar("click-observar.m4a");
+}
+
+// limite
+
+for(let k in galo){
+
+if(typeof galo[k] === "number" && galo[k] > 999)
+galo[k] = 999;
+
+}
+
+salvar();
+atualizar();
+
+}
+
+// ================= RENDER =================
+
+function atualizar(){
+
+let id = idade();
+let fase = faseReal(id.d);
+
+// imagem fase
+
+document.getElementById("perfil").src = "fase-" + fase[0] + ".png";
+
+// tocar som da fase (uma vez)
+
+if(galo.faseSom !== fase[0]){
+
+galo.faseSom = fase[0];
+
+tocar("fase"+fase[0]+".m4a");
+
+salvar();
+
+}
+
+// textos
+
+document.getElementById("nivel").innerText =
+"Nível "+nivel()+" • "+fase[1];
+
+document.getElementById("idade").innerText =
+"Idade: "+id.d+"d "+id.h+"h "+id.m+"m";
+
+document.getElementById("personalidade").innerText =
+"Personalidade: "+personalidade();
+
+// barras
+
+document.getElementById("stats").innerHTML =
+
+'<div class="status">'+
+'<div class="linha"><img class="attr" src="vitalidade.png"> '+galo.vitalidade+'</div>'+
+'<div class="bar"><div class="fill vitalidade" style="width:'+galo.vitalidade+'%"></div></div>'+
+'</div>'+
+
+'<div class="status">'+
+'<div class="linha"><img class="attr" src="forca.png"> '+galo.forca+'</div>'+
+'<div class="bar"><div class="fill forca" style="width:'+galo.forca+'%"></div></div>'+
+'</div>'+
+
+'<div class="status">'+
+'<div class="linha"><img class="attr" src="disciplina.png"> '+galo.disciplina+'</div>'+
+'<div class="bar"><div class="fill disciplina" style="width:'+galo.disciplina+'%"></div></div>'+
+'</div>'+
+
+'<div class="status">'+
+'<div class="linha"><img class="attr" src="confianca.png"> '+galo.confianca+'</div>'+
+'<div class="bar"><div class="fill confianca" style="width:'+galo.confianca+'%"></div></div>'+
+'</div>'+
+
+'<div class="status">'+
+'<div class="linha"><img class="attr" src="instinto.png"> '+galo.instinto+'</div>'+
+'<div class="bar"><div class="fill instinto" style="width:'+galo.instinto+'%"></div></div>'+
+'</div>';
+
+}
+
+// atualizar automaticamente
+
+setInterval(atualizar,60000);
+
+atualizar();
+
+</script></body>
+</html>
