@@ -327,10 +327,12 @@ galo.instinto+=3;
 tocar("click-observar.m4a");
 }
 
-for(let k in galo){
+let atributos = ["vitalidade","forca","disciplina","confianca","instinto"];
 
-if(typeof galo[k]=="number" && galo[k]>999)
-galo[k]=999;
+for(let k of atributos){
+
+if(galo[k] > 999)
+galo[k] = 999;
 
 }
 
